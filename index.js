@@ -124,7 +124,7 @@ const crunchbasefetcher = async (record) => {
       })
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         let website = data[0].cards ? data[0].cards.company_about_fields2 ? data[0].cards.company_about_fields2.website ? data[0].cards.company_about_fields2.website.value : "" : "" : ""
         if (website !== "")
           if (website[website.length - 1] == "/")
@@ -492,7 +492,7 @@ const apollofetcher = async (record) => {
   try {
     let checkbox = record.get('CheckBox')
     if (checkbox) {
-      const apolloApiToken = "TrAMXBKROP-2vX15baYiaQ";
+      const apolloApiToken = "B_AG825vg2HDXYJMTOgYUg";
       let targetDomain = record.get("Website");
       console.log(targetDomain);
       if (targetDomain) {
@@ -534,7 +534,7 @@ const apollofetcher = async (record) => {
                 : ""
               : "";
 
-            const num_employees = data?.organization?.estimated_num_employees;
+            let num_employees = data?.organization?.estimated_num_employees;
 
             const address = data.organization?.raw_address;
             const city = data.organization?.city;
@@ -556,7 +556,7 @@ const apollofetcher = async (record) => {
 
             const current_techArr = data.organization?.current_technologies;
 
-            const current_tech = current_techArr?.map((tech) => tech.name);
+            let current_tech = current_techArr?.map((tech) => tech.name);
 
             // updating airtable
 
@@ -566,6 +566,8 @@ const apollofetcher = async (record) => {
             const airLocation = record.get("Location");
             const airAbout = record.get("About");
             const airCompanyDescription = record.get("Company Description");
+
+            
 
             if (!linkedinUrl && linkedinUrl != null) {
               await table.update(record.id, {
@@ -594,6 +596,8 @@ const apollofetcher = async (record) => {
 
             }
 
+            
+
             const location = `${city}, ${state}, ${country}`;
             if (!airLocation && city && state && country) {
               await table.update(record.id, {
@@ -608,11 +612,13 @@ const apollofetcher = async (record) => {
             if (country && country != null) {
               await table.update(record.id, {
                 "HQ Country": country,
-              }, typecast = true, function (err, record) {
+              }, function (err, record) {
                 if (err) { console.error(err); return; }
               });
 
             }
+
+            
 
             if (!airAbout && about) {
               await table.update(record.id, {
@@ -632,10 +638,12 @@ const apollofetcher = async (record) => {
               );
             }
 
+            
+
             // headquarters regions
 
             if (address) {
-              const hqRegions = address.split(",").map((item) => item.trim());
+              let hqRegions = address.split(",").map((item) => item.trim());
               if (hqRegions && hqRegions != null) {
                 const unique = [...new Set(hqRegions)]
                 //make a string seperated by , sign
@@ -658,9 +666,11 @@ const apollofetcher = async (record) => {
               }
             }
 
+            
+
             if (num_employees) {
               let employee = ""
-              const airNum_employees = record.get("Employee Count");
+              let airNum_employees = record.get("Employee Count");
               if (!airNum_employees) {
                 if (num_employees < 50) {
                   employee = "1-10"
@@ -689,19 +699,22 @@ const apollofetcher = async (record) => {
                 }
                 );
               }
+            }
+              
+
 
               if (categories) {
                 const it = record.get("Categories");
                 // console.log(intitializeCategories)
                 let intitializeCategories = it?.split(",");
-                const ct = [];
+                let ct = [];
                 ct.push(categories);
                 if (intitializeCategories && intitializeCategories != null)
                   for (let i = 0; i < intitializeCategories.length; i++) {
                     ct.push(intitializeCategories[i])
                   }
                 if (ct && ct != null) {
-                  const unique = [...new Set(ct)]
+                  let unique = [...new Set(ct)]
                   //make a string seperated by , sign
                   // console.log(unique)  
                   let categoryString = ""
@@ -716,13 +729,13 @@ const apollofetcher = async (record) => {
 
                   await table.update(record.id, {
                     Categories: categoryString
-                    // typecast: true
                   }, function (err, record) {
                     if (err) { console.error(err); return; }
                   }
                   );
                 }
               }
+
 
               //Profile Fit
 
@@ -775,6 +788,7 @@ const apollofetcher = async (record) => {
                     profileFitString += unique[i] + ","
                   }
                 }
+                // console.log(profileFitString)
 
 
                 await table.update(record.id, {
@@ -830,11 +844,11 @@ const apollofetcher = async (record) => {
               const jobUrl = `https://api.apollo.io/v1/organizations/${orgId}/job_postings?api_key=${apolloApiToken}`;
 
               const res = await fetch(jobUrl);
-              console.log(res);
+              // console.log(res);
               if (res.ok) {
                 const jobData = await res.json();
 
-                console.log(jobData); 
+                // console.log(jobData); 
                 // console.log(jobCount);
 
                 const JArr = jobData.organization_job_postings;
@@ -924,7 +938,6 @@ const apollofetcher = async (record) => {
         console.log("No data found");
         return { success: false, message: 'Website must be there' };
       }
-    }
   }
   catch (error) {
     console.log(error);
