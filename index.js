@@ -966,6 +966,10 @@ app.get('/apollo', async (req, res) => {
 });
 
 
+app.get('/', async (req, res) => {
+  res.send("I am working");
+});
+
 
 
 
