@@ -10,8 +10,8 @@ const port = 3000
 // var table = base('working copy');
 var Airtable = require('airtable');
 Airtable.configure({
-    endpointUrl: 'https://api.airtable.com',
-    apiKey: 'patEqwr3K9XqIfdYs.883f6225a56b0ec07fdc4636ac1d96e15bf66cb40aec4fe43d10e2723d23de3c' // Replace with your access token
+  endpointUrl: 'https://api.airtable.com',
+  apiKey: 'patEqwr3K9XqIfdYs.883f6225a56b0ec07fdc4636ac1d96e15bf66cb40aec4fe43d10e2723d23de3c' // Replace with your access token
 });
 
 var base = Airtable.base('appuie1VsoezjW5jY');
@@ -124,6 +124,7 @@ const crunchbasefetcher = async (record) => {
       })
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         let website = data[0].cards ? data[0].cards.company_about_fields2 ? data[0].cards.company_about_fields2.website ? data[0].cards.company_about_fields2.website.value : "" : "" : ""
         if (website !== "")
           if (website[website.length - 1] == "/")
@@ -181,7 +182,9 @@ const crunchbasefetcher = async (record) => {
           // about
           const about = data[0].properties ? data[0].properties.short_description : ""
           if (about !== "") {
-            await table.update(record.id, {
+            await table.update(record.id, { 
+
+
               'About': about
             }, function (err, record) {
               if (err) { console.error(err); return; }
@@ -191,12 +194,21 @@ const crunchbasefetcher = async (record) => {
 
           const HR = data[0].cards ? data[0].cards.org_similarity_list ? data[0].cards.org_similarity_list[0].source_location_groups ? data[0].cards.org_similarity_list[0].source_location_groups.map(item => item.value) : "" : "" : ""
           if (HR.length > 0) {
-            // await updateAirtableRecord(record.id, {
-            //   'Headquarters_Regions': [...new Set(HR)]
-            // })
+            const unique = [...new Set(HR)]
+            //make a string seperated by , sign
+            let str = "";
+            for (let i = 0; i < unique.length; i++) {
+              if (i == unique.length - 1)
+                str += unique[i]
+              else
+                str += unique[i] + ","
+
+            }
+
+
             await table.update(record.id, {
-              'Headquarters Regions': [...new Set(HR)]
-            }, typecast = true, function (err, record) {
+              'Headquarters Regions': str
+            }, function (err, record) {
               if (err) { console.error(err); return; }
             }
             );
@@ -315,9 +327,22 @@ const crunchbasefetcher = async (record) => {
           //   'Categories': Categories
           // })
           if (ct !== "") {
+
+            const unique = [...new Set(ct)];
+            //make string seperated by , sign
+            let str = ""
+            for (let i = 0; i < unique.length; i++) {
+              if (i == unique.length - 1) {
+                str = str + unique[i]
+              } else {
+                str = str + unique[i] + ","
+              }
+            }
+
+
             await table.update(record.id, {
-              'Categories': [...new Set(ct)]
-            }, typecast = true, function (err, record) {
+              'Categories': str,
+            }, function (err, record) {
               if (err) { console.error(err); return; }
             }
             );
@@ -368,9 +393,21 @@ const crunchbasefetcher = async (record) => {
             // await table.updateRecordAsync(record, {
             //   'Profile Fit': Profile_Fit
             // })
+            const unique = [...new Set(funding_field_value)];
+            //make string seperated by , sign
+            let str = ""
+            for (let i = 0; i < unique.length; i++) {
+              if (i == unique.length - 1) {
+                str = str + unique[i]
+              } else {
+                str = str + unique[i] + ","
+              }
+            }
+
+
             await table.update(record.id, {
-              'Profile Fit': [...new Set(funding_field_value)]
-            }, typecast = true, function (err, record) {
+              'Profile Fit': str,
+            }, function (err, record) {
               if (err) { console.error(err); return; }
             }
             );
@@ -384,9 +421,20 @@ const crunchbasefetcher = async (record) => {
 
           if (tech_stackArr) {
             const ts = tech_stackArr.map((tech) => tech.identifier.value);
+            const unique = [...new Set(ts)];
+            //make string seperated by , sign
+            let str = ""
+            for (let i = 0; i < unique.length; i++) {
+              if (i == unique.length - 1) {
+                str = str + unique[i]
+              } else {
+                str = str + unique[i] + ","
+              }
+            }
+
             await table.update(record.id, {
-              'Technology Stack': [...new Set(ts)]
-            }, typecast = true, function (err, record) {
+              'Technology Stack': str,
+            }, function (err, record) {
               if (err) { console.error(err); return; }
             }
             );
@@ -428,7 +476,7 @@ app.get('/crunchbase', async (req, res) => {
     }).all();
     const promises = [];
     for (let i = 0; i < records.length; i++) {
-      promises.push(crunchbasefetcher(records[i]));
+      promises.push(await crunchbasefetcher(records[i])); 
     }
     await Promise.all(promises);
     console.log("done");
@@ -457,6 +505,7 @@ const apollofetcher = async (record) => {
         const resp = await fetch(apolloUrl);
         if (resp.ok) {
           const data = await resp.json();
+          // console.log(data);  
           if (Object.keys(data).length !== 0) {
             orgId = data.organization?.id;
             const linkedinUrl = data
@@ -562,11 +611,11 @@ const apollofetcher = async (record) => {
               }, typecast = true, function (err, record) {
                 if (err) { console.error(err); return; }
               });
-              
+
             }
 
             if (!airAbout && about) {
-              await table.update(record.id, {  
+              await table.update(record.id, {
                 About: about,
               }, function (err, record) {
                 if (err) { console.error(err); return; }
@@ -588,9 +637,21 @@ const apollofetcher = async (record) => {
             if (address) {
               const hqRegions = address.split(",").map((item) => item.trim());
               if (hqRegions && hqRegions != null) {
+                const unique = [...new Set(hqRegions)]
+                //make a string seperated by , sign
+                let hqRegionsString = ""
+                for (let i = 0; i < unique.length; i++) {
+                  if (i == unique.length - 1) {
+                    hqRegionsString += unique[i]
+                  } else {
+                    hqRegionsString += unique[i] + ","
+                  }
+                }
+
+
                 await table.update(record.id, {
-                  "Headquarters Regions": [...new Set(hqRegions)],
-                }, typecast = true, function (err, record) {
+                  "Headquarters Regions": hqRegionsString,
+                }, function (err, record) {
                   if (err) { console.error(err); return; }
                 }
                 );
@@ -630,7 +691,9 @@ const apollofetcher = async (record) => {
               }
 
               if (categories) {
-                intitializeCategories = record.get("Categories");
+                const it = record.get("Categories");
+                // console.log(intitializeCategories)
+                let intitializeCategories = it?.split(",");
                 const ct = [];
                 ct.push(categories);
                 if (intitializeCategories && intitializeCategories != null)
@@ -638,10 +701,23 @@ const apollofetcher = async (record) => {
                     ct.push(intitializeCategories[i])
                   }
                 if (ct && ct != null) {
+                  const unique = [...new Set(ct)]
+                  //make a string seperated by , sign
+                  // console.log(unique)  
+                  let categoryString = ""
+                  for (let i = 0; i < unique.length; i++) {
+                    if (i == unique.length - 1) {
+                      categoryString += unique[i]
+                    } else {
+                      categoryString += unique[i] + ","
+                    }
+                  }
+
+
                   await table.update(record.id, {
-                    Categories: [...new Set(ct)],
+                    Categories: categoryString
                     // typecast: true
-                  }, typecast = true, function (err, record) {
+                  }, function (err, record) {
                     if (err) { console.error(err); return; }
                   }
                   );
@@ -685,9 +761,25 @@ const apollofetcher = async (record) => {
               const airProfileFit = record.get("Profile Fit");
 
               if (!airProfileFit) {
+                let unique = airProfileFit?.split(",");
+                for(let i=0;i<funding_field_value.length;i++){
+                  unique.push(funding_field_value[i])
+                }
+                unique = [...new Set(unique)] //remove duplicates
+                //make a string seperated by , sign
+                let profileFitString = ""
+                for (let i = 0; i < unique.length; i++) {
+                  if (i == unique.length - 1) {
+                    profileFitString += unique[i]
+                  } else {
+                    profileFitString += unique[i] + ","
+                  }
+                }
+
+
                 await table.update(record.id, {
-                  "Profile Fit": [...new Set(funding_field_value)],
-                }, typecast = true, function (err, record) {
+                  "Profile Fit": profileFitString,
+                }, function (err, record) {
                   if (err) { console.error(err); return; }
                 }
                 );
@@ -697,7 +789,8 @@ const apollofetcher = async (record) => {
 
               const tc = data.organization?.current_technologies;
               if (tc != null) {
-                const airTechnologyStack = record.get("Technology Stack");
+                const initial=record.get("Technology Stack");
+                const airTechnologyStack = initial?.split(",");
                 const tech_stackArr = [];
                 for (let i = 0; i < tc.length; i++) {
                   tech_stackArr.push(tc[i].name);
@@ -707,9 +800,20 @@ const apollofetcher = async (record) => {
                     tech_stackArr.push(airTechnologyStack[i]);
                   }
                 if (tech_stackArr && tech_stackArr != null) {
+                  const unique = [...new Set(tech_stackArr)]
+                  //make a string seperated by , sign
+                  let techStackString = ""
+                  for (let i = 0; i < unique.length; i++) {
+                    if (i == unique.length - 1) {
+                      techStackString += unique[i]
+                    } else {
+                      techStackString += unique[i] + ","
+                    }
+                  }
+
                   await table.update(record.id, {
-                    "Technology Stack": [...new Set(tech_stackArr)],
-                  }, typecast = true, function (err, record) {
+                    "Technology Stack": techStackString
+                  }, function (err, record) {
                     if (err) { console.error(err); return; }
                   }
                   );
@@ -721,13 +825,16 @@ const apollofetcher = async (record) => {
 
             if (orgId !== "" || orgId !== null || orgId !== undefined) {
               console.log("Getting Organisation Level Signals values...")
+              console.log(orgId); 
 
               const jobUrl = `https://api.apollo.io/v1/organizations/${orgId}/job_postings?api_key=${apolloApiToken}`;
 
               const res = await fetch(jobUrl);
+              console.log(res);
               if (res.ok) {
                 const jobData = await res.json();
 
+                console.log(jobData); 
                 // console.log(jobCount);
 
                 const JArr = jobData.organization_job_postings;
@@ -778,11 +885,21 @@ const apollofetcher = async (record) => {
                 }
 
                 let jobTitleArrUnique = [...new Set(jobTitleArr)];
+                //make a string seperated by , sign
+                let jobTitleString = ""
+                for (let i = 0; i < jobTitleArrUnique.length; i++) {
+                  if (i == jobTitleArrUnique.length - 1) {
+                    jobTitleString += jobTitleArrUnique[i]
+                  } else {
+                    jobTitleString += jobTitleArrUnique[i] + ","
+                  }
+                }
 
-                // updating in airtable
+
+                // updating in airtable 
                 await table.update(record.id, {
-                  "Organisation Level Signals": jobTitleArrUnique,
-                }, typecast = true, function (err, record) {
+                  "Organisation Level Signals": jobTitleString,
+                }, function (err, record) {
                   if (err) { console.error(err); return; }
                 }
                 );
@@ -791,10 +908,10 @@ const apollofetcher = async (record) => {
 
               }
             }
-            else{
+            else {
               console.log("No data found");
               return { success: true, message: 'No Org Id Found' };
-            } 
+            }
           }
 
         }
@@ -823,7 +940,7 @@ app.get('/apollo', async (req, res) => {
     const promises = [];
     for (let i = 0; i < records.length; i++) {
       console.log("Retrived", records[i].get('Company Name'))
-      promises.push(apollofetcher(records[i]));
+      promises.push(await apollofetcher(records[i]));
     }
     await Promise.all(promises);
     console.log(promises)
