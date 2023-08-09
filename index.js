@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
-const express = require('express')
-const axios = require('axios');
+// const express = require('express')
+import express from 'express';
+
 const app = express()
 const port = 3000
 // // Replace with your Airtable API details
@@ -9,7 +10,11 @@ const port = 3000
 // const airtableApiKey = 'keyjRjUzwRvpZizUR';
 // var base = new Airtable({ apiKey: `${airtableApiKey}` }).base('appuie1VsoezjW5jY');
 // var table = base('working copy');
-var Airtable = require('airtable');
+
+
+// var Airtable = require('airtable');
+import Airtable from 'airtable';
+
 Airtable.configure({
   endpointUrl: 'https://api.airtable.com',
   apiKey: 'patEqwr3K9XqIfdYs.883f6225a56b0ec07fdc4636ac1d96e15bf66cb40aec4fe43d10e2723d23de3c' // Replace with your access token
