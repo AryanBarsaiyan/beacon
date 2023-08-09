@@ -18,7 +18,7 @@ Airtable.configure({
 var base = Airtable.base('appuie1VsoezjW5jY');
 var table = base('working copy');
 
-
+ 
 const crunchbasefetcher = async (record) => {
   try {
     console.log('Retrieved', record.get('Company Name'));
