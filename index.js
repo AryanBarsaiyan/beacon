@@ -259,7 +259,7 @@ const crunchbasefetcher = async (record) => {
             // })
             await table.update(record.id, {
               'HQ Country': location.country
-            }, typecast = true, function (err, record) {
+            }, function (err, record) {
               if (err) { console.error(err); return; }
             }
             );
@@ -452,7 +452,7 @@ const crunchbasefetcher = async (record) => {
           if (ipostatus) {
             await table.update(record.id, {
               'IPO Status': ipostatus
-            }, typecast = true, function (err, record) {
+            },  function (err, record) {
               if (err) { console.error(err); return; }
             }
             );
