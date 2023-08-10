@@ -982,7 +982,8 @@ const apollofetcher = async (record) => {
         console.log("No data found");
         // return { success: false, message: 'Website must be there' };
         // reject("Website must be there");
-        resolve.status(500).send('Website must be there');
+        // resolve.status(500).send('Website must be there');
+        resolve("Website must be there");
       }
     });
   } catch (error) {
