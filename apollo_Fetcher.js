@@ -1,4 +1,6 @@
-const apollofetcher = async (record) => {
+import fetch from 'node-fetch';
+
+const apollofetcher = async (record,table) => {
     try {
       return new Promise(async (resolve, reject) => {
         let checkbox = record.get('CheckBox')
@@ -469,4 +471,4 @@ const apollofetcher = async (record) => {
     }
   }
 
-  exports.apollofetcher = apollofetcher;
+  export default apollofetcher;

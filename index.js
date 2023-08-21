@@ -1,8 +1,8 @@
-import fetch from 'node-fetch';
 // const express = require('express')
 // require("dotenv").config();
-import { crunchbasefetcher } from './crunchBase_Fetcher';
-import { apollofetcher } from './apollo_Fetcher';
+import crunchbasefetcher from './crunchBase_Fetcher.js';
+import apollofetcher from './apollo_Fetcher.js';
+import blogScript from './blogScript.js';
 import dotenv from 'dotenv';
 import express from 'express';
 import axios from 'axios';
@@ -32,7 +32,7 @@ app.get('/crunchbase', async (req, res) => {
     }).all();
     const promises = [];
     for (let i = 0; i < records.length; i++) {
-      promises.push(await crunchbasefetcher(records[i]));
+      promises.push(await crunchbasefetcher(records[i],table));
     }
     await Promise.all(promises);
     console.log(promises);
@@ -69,11 +69,44 @@ app.get('/apollo', async (req, res) => {
     const promises = [];
     for (let i = 0; i < records.length; i++) {
       console.log("Retrived", records[i].get('Company Name'))
-      promises.push(await apollofetcher(records[i]));
+      promises.push(await apollofetcher(records[i],table));
     }
     await Promise.all(promises);
     const webhookPayload = {
       key1: 'Appolo',
+    };
+    const webhookUrl = 'https://hooks.airtable.com/workflows/v1/genericWebhook/appuie1VsoezjW5jY/wflwjA90pRCKpfBEg/wtrRM1j074yWLFugZ'; // Replace with your actual webhook URL
+
+    axios.post(webhookUrl, webhookPayload)
+      .then(response => {
+        console.log('Webhook sent successfully:', response.data);
+        console.log("done");
+        res.send(records);
+      })
+      .catch(error => {
+        console.error('Error sending webhook:', error);
+      });
+    console.log(promises)
+
+  } catch (error) {
+    console.error('Error in / route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/Relevance', async (req, res) => {
+  try {
+    const records = await table.select({
+      view: "Grid view"
+    }).all();
+    const promises = [];
+    for (let i = 0; i < records.length; i++) {
+      console.log("Retrived", records[i].get('Company Name'))
+      promises.push(await blogScript(records[i],table));
+    }
+    await Promise.all(promises);
+    const webhookPayload = {
+      key1: 'blogScript',
     };
     const webhookUrl = 'https://hooks.airtable.com/workflows/v1/genericWebhook/appuie1VsoezjW5jY/wflwjA90pRCKpfBEg/wtrRM1j074yWLFugZ'; // Replace with your actual webhook URL
 

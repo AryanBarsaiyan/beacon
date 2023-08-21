@@ -1,4 +1,6 @@
-const crunchbasefetcher = async (record) => {
+import fetch from 'node-fetch';
+
+const crunchbasefetcher = async (record,table) => {
     try {
         return new Promise(async (resolve, reject) => {
             console.log('Retrieved', record.get('Company Name'));
@@ -462,4 +464,4 @@ const crunchbasefetcher = async (record) => {
     }
 }
 
-exports.crunchbasefetcher = crunchbasefetcher;
+export default crunchbasefetcher;
