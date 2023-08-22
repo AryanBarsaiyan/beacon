@@ -20,18 +20,7 @@ const blogScript = async (record, table) => {
 
 
                 const setOfTags = new Set();
-                let prevRelevance = record.get('Relevance');
-                // console.log(prevRelevance)
-                if (prevRelevance) {
-                    prevRelevance = prevRelevance.split(',');
-                    if (prevRelevance) {
-                        prevRelevance.forEach((value) => {
-                            setOfTags.add(value.name);
-                        });
-                    }
-                }   
 
-                console.log(prevRelevance)
 
 
 
@@ -260,17 +249,33 @@ const blogScript = async (record, table) => {
                     .catch((error) => {
                         console.error("Error:", error);
                     });
-
-                let choiceNotExits = []
-                let Tags = "";
-                for (let i = 0; i < setOfTags.size; i++) {
-                    if (i == setOfTags.size - 1) {
-                        Tags = Tags + Array.from(setOfTags)[i];
-                    }
-                    else {
-                        Tags = Tags + Array.from(setOfTags)[i] + ", ";
+                let prevRelevance = record.get('Relevance');
+                // console.log(prevRelevance)
+                if (prevRelevance) {
+                    prevRelevance = prevRelevance.split(',');
+                    if (prevRelevance) {
+                        for (let i = 0; i < prevRelevance.length; i++) {
+                            setOfTags.add(prevRelevance[i]);
+                        }
                     }
                 }
+
+                const x=[...new set(setOfTags)];
+
+                console.log(prevRelevance)
+
+                console.log(setOfTags);
+                let Tags = "";
+                for (let i = 0; i < setOfTags.size; i++) {
+                    if (Array.from(setOfTags)[i] != undefined)
+                        if (i == setOfTags.size - 1) {
+                            Tags = Tags + Array.from(setOfTags)[i];
+                        }
+                        else {
+                            Tags = Tags + Array.from(setOfTags)[i] + ", ";
+                        }
+                }
+
 
                 //setOfTags;
                 const pro = new Promise(async (resolve, reject) => {

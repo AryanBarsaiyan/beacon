@@ -3,6 +3,7 @@
 import crunchbasefetcher from './crunchBase_Fetcher.js';
 import apollofetcher from './apollo_Fetcher.js';
 import blogScript from './blogScript.js';
+import gpt_analyser from './gpt_analyser.js';
 import dotenv from 'dotenv';
 import express from 'express';
 import axios from 'axios';
@@ -103,6 +104,7 @@ app.get('/Relevance', async (req, res) => {
     for (let i = 0; i < records.length; i++) {
       console.log("Retrived", records[i].get('Company Name'))
       promises.push(await blogScript(records[i],table));
+      promises.push(await gpt_analyser(records[i],table));
     }
     await Promise.all(promises);
     const webhookPayload = {
