@@ -190,8 +190,9 @@ const crunchbasefetcher = async (record,table) => {
                                     str += unique[i] + ","
 
                             }
+                            const old=record.get('Headquarters Regions');
 
-
+                            if(old!='')
                             await table.update(record.id, {
                                 'Headquarters Regions': str
                             }, function (err, record) {
