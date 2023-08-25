@@ -17,6 +17,21 @@ const blogScript = async (record, table) => {
                 let isDocumentation = false;
                 let isMobileApp = false;
                 let isNewsletter = false;
+                let isCareers = false;
+                let isPricing = false;
+
+                let blogSite = "";
+                let g2Site = "";
+                let githubSite = "";
+                let tiktokSite = "";
+                let articlesSite = "";
+                let documentationSite = "";
+                let mobileAppSite = "";
+                let newsletterSite = "";
+                let careersSite = "";
+                let pricingSite = "";
+
+
 
 
                 const setOfTags = new Set();
@@ -83,6 +98,7 @@ const blogScript = async (record, table) => {
                         const blogUrl = data[0]?.organicResults[0]?.url;
                         console.log(blogUrl);
 
+
                         const text = forBlog.split(" ");
                         const title = text[0];
                         isBlog = isTitleInURL(blogUrl, title);
@@ -90,6 +106,7 @@ const blogScript = async (record, table) => {
 
                         if (isBlog) {
                             setOfTags.add("Blogs");
+                            blogSite = blogUrl;
                         }
                         // setOfTags.add("blog");
                     })
@@ -111,6 +128,7 @@ const blogScript = async (record, table) => {
 
                         if (isG2) {
                             setOfTags.add("G2 Badge");
+                            g2Site = g2Url;
                         }
 
                     })
@@ -132,6 +150,7 @@ const blogScript = async (record, table) => {
 
                         if (isGithubPage) {
                             setOfTags.add("Github");
+                            githubSite = githubPageUrl;
                         }
 
                     })
@@ -151,6 +170,9 @@ const blogScript = async (record, table) => {
                         const title = text[0];
                         isTiktok = isTitleParamsInURL(tiktokUrl, title, "tiktok");
                         console.log("isTiktok", isTiktok);
+                        if(isTiktok){
+                            tiktokSite = tiktokUrl;
+                        }
                     })
                     .catch((error) => {
                         console.error("Error:", error);
@@ -172,6 +194,7 @@ const blogScript = async (record, table) => {
 
                         if (isArticles) {
                             setOfTags.add("Articles");
+                            articlesSite = articlesUrl;
                         }
 
                     })
@@ -196,6 +219,7 @@ const blogScript = async (record, table) => {
 
                         if (isDocumentation) {
                             setOfTags.add("Documentation");
+                            documentationSite = documentationUrl;
                         }
 
                     })
@@ -219,6 +243,7 @@ const blogScript = async (record, table) => {
 
                         if (isMobileApp) {
                             setOfTags.add("Mobile App");
+                            mobileAppSite = mobileAppUrl;
                         }
                     })
                     .catch((error) => {
@@ -243,12 +268,63 @@ const blogScript = async (record, table) => {
 
                         if (isNewsletter) {
                             setOfTags.add("Newsletter");
+                            newsletterSite = newsletterUrl;
                         }
 
                     })
                     .catch((error) => {
                         console.error("Error:", error);
                     });
+                  
+
+                const forCareers = `${comp} careers`;
+
+                await fetchData(forCareers)
+                     .then((data) => {
+                            const careersUrl = data[0]?.organicResults[0]?.url;
+                            console.log(careersUrl);
+                             
+                            const text = forCareers.split(" ");
+                            const title = text[0];
+                            isCareers = isTitleParamsInURL(careersUrl, title, "careers");
+                            console.log("isCareers", isCareers);
+
+                            if (isCareers) {
+                                setOfTags.add("Careers");
+                                careersSite = careersUrl;
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Error:", error);
+                        });
+
+                 
+                const forPricing = `${comp} pricing`;
+
+                await fetchData(forPricing)
+                        .then((data) => {
+                            const pricingUrl = data[0]?.organicResults[0]?.url;
+                            console.log(pricingUrl);
+
+                            const text = forPricing.split(" ");
+                            const title = text[0];
+                            isPricing = isTitleParamsInURL(pricingUrl, title, "pricing");
+                            console.log("isPricing", isPricing);
+
+                            if (isPricing) {
+                                setOfTags.add("Pricing");
+                                pricingSite = pricingUrl;
+                            }
+                        })
+                        .catch((error) => {
+                            console.error("Error:", error);
+                        });
+
+
+
+
+
+
                 let prevRelevance = record.get('Relevance');
                 // console.log(prevRelevance)
                 if (prevRelevance) {
@@ -260,7 +336,7 @@ const blogScript = async (record, table) => {
                     }
                 }
 
-                const x=[...new set(setOfTags)];
+                const x=[...new Set(setOfTags)];
 
                 console.log(prevRelevance)
 
@@ -283,7 +359,15 @@ const blogScript = async (record, table) => {
                         // updating in airtable 
                         await table.update(record.id, {
                             "Relevance": Tags,
-                            "TikTok URL": tiktokUrl,
+                            "TikTok URL": tiktokSite ? tiktokSite : "",
+                            "Blog Website": blogSite ? blogSite : "",
+                            "Github Page": githubSite ? githubSite : "",
+                            "Articles Site": articlesSite ? articlesSite : "",
+                            "Documentation": documentationSite ? documentationSite : "",
+                            "Mobile App" : mobileAppSite ? mobileAppSite : "",
+                            "Newsletter" : newsletterSite ? newsletterSite : "",
+                            "Careers" : careersSite ? careersSite : "",
+                            "Pricing" : pricingSite ? pricingSite : "",
                         });
                         resolve(); // Resolve the promise when the update is successful
                     } catch (err) {

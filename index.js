@@ -105,7 +105,7 @@ app.get('/Relevance', async (req, res) => {
     for (let i = 0; i < records.length; i++) {
       console.log("Retrived", records[i].get('Company Name'))
       promises.push(await blogScript(records[i],table));
-      promises.push(await gpt_analyser(records[i],table));
+      // promises.push(await gpt_analyser(records[i],table));
     }
     await Promise.all(promises);
     const webhookPayload = {
