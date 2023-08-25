@@ -3,6 +3,7 @@
 import crunchbasefetcher from './crunchBase_Fetcher.js';
 import apollofetcher from './apollo_Fetcher.js';
 import blogScript from './blogScript.js';
+import blog_analyzer from './blog_analyzer.js';
 import gpt_analyser from './gpt_analyser.js';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -129,6 +130,39 @@ app.get('/Relevance', async (req, res) => {
   }
 });
 
+
+app.get('/blog_analyzer', async (req, res) => {
+  try {
+    const records = await table.select({
+      view: "Grid view"
+    }).all();
+    const promises = [];
+    for (let i = 0; i < records.length; i++) {
+      console.log("Retrived", records[i].get('Company Name'))
+      promises.push(await blog_analyzer(records[i],table));
+    }
+    await Promise.all(promises);
+    const webhookPayload = {
+      key1: 'blog_analyzer',
+    };
+    const webhookUrl = 'https://hooks.airtable.com/workflows/v1/genericWebhook/appuie1VsoezjW5jY/wflwjA90pRCKpfBEg/wtrRM1j074yWLFugZ'; // Replace with your actual webhook URL
+
+    axios.post(webhookUrl, webhookPayload)
+      .then(response => {
+        console.log('Webhook sent successfully:', response.data);
+        console.log("done");
+        res.send(records);
+      })
+      .catch(error => {
+        console.error('Error sending webhook:', error);
+      });
+    console.log(promises)
+
+  } catch (error) {
+    console.error('Error in / route:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 app.get('/', async (req, res) => {
   res.json({ message: 'I am running' })
