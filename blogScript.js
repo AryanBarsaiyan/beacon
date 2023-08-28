@@ -27,7 +27,7 @@ const blogScript = async (record, table) => {
                 let comp = record.get('Company Name');
                 let website = record.get('Website');
                 const domain=extractCompanyDomain(website);
-                if(domain!=null){
+                if(domain!=null){ 
                     comp=domain;
                 }
                 comp.toLowerCase();

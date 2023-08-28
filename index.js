@@ -3,7 +3,7 @@
 import crunchbasefetcher from './crunchBase_Fetcher.js';
 import apollofetcher from './apollo_Fetcher.js';
 import blogScript from './blogScript.js';
-import blog_analyzer from './blog_analyzer.js';
+import blogDetailProvider from './blogDetailProvider.js';
 import gpt_analyser from './gpt_analyser.js';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -131,7 +131,7 @@ app.get('/Relevance', async (req, res) => {
 });
 
 
-app.get('/blog_analyzer', async (req, res) => {
+app.get('/blogDetailProvider', async (req, res) => {
   try {
     const records = await table.select({
       view: "Grid view"
@@ -139,7 +139,7 @@ app.get('/blog_analyzer', async (req, res) => {
     const promises = [];
     for (let i = 0; i < records.length; i++) {
       console.log("Retrived", records[i].get('Company Name'))
-      promises.push(await blog_analyzer(records[i],table));
+      promises.push(await blogDetailProvider(records[i],table));
     }
     await Promise.all(promises);
     const webhookPayload = {
