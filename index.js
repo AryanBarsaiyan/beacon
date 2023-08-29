@@ -15,6 +15,7 @@ const port = 3000
 
 // var Airtable = require('airtable');
 import Airtable from 'airtable';
+import { Pricing } from './Pricing.js';
 
 Airtable.configure({
   endpointUrl: 'https://api.airtable.com',
@@ -163,6 +164,48 @@ app.get('/blogDetailProvider', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+app.get('/Pricing', async (req, res) =>{
+    try {
+
+       const records = await table.select({
+        view: "Grid view"
+      }).all();
+
+      const promises = [];
+      for (let i = 0; i < records.length; i++) {
+        console.log("Retrived", records[i].get('Company Name'))
+        promises.push(await Pricing(records[i],table));
+      }
+
+      await Promise.all(promises);
+      const webhookPayload = {
+        key1: 'Pricing',
+      };
+
+      const webhookUrl = 'https://hooks.airtable.com/workflows/v1/genericWebhook/appuie1VsoezjW5jY/wflwjA90pRCKpfBEg/wtrRM1j074yWLFugZ'; // Replace with your actual webhook URL
+
+      axios.post(webhookUrl, webhookPayload)
+        .then(response => { 
+          console.log('Webhook sent successfully:', response.data);
+          console.log("done");
+          res.send(records);
+        })
+        .catch(error => {
+          console.error('Error sending webhook:', error);
+        });
+        
+
+      console.log(promises);
+
+      
+    } catch (error) {
+      console.error('Error in / route:', error);
+      res.status(500).send('Internal Server Error');
+
+      
+    }
+})
 
 app.get('/', async (req, res) => {
   res.json({ message: 'I am running' })
