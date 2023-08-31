@@ -103,9 +103,7 @@ const blogDetailProvider = async (record, table) => {
             else {
                 console.log("NO CHECKBOX");
                 if(!blog_website){
-                    await table.update(record.id, {
-                        "Blogs Details": "No Blog Website",
-                    });
+                    console.log("NO BLOG WEBSITE");
                 }
                 resolve("No checkbox");
             }
