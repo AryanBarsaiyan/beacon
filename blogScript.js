@@ -387,11 +387,11 @@ const blogScript = async (record, table) => {
                             "Blog Website": blogSite ? blogSite : "",
                             "Github Page": githubSite ? githubSite : "",
                             "Articles Site": articlesSite ? articlesSite : "",
-                            "Documentation": documentationSite ? documentationSite : "",
-                            "Mobile App" : mobileAppSite ? mobileAppSite : "",
-                            "Newsletter" : newsletterSite ? newsletterSite : "",
-                            "Careers" : careersSite ? careersSite : "",
-                            "Pricing" : pricingSite ? pricingSite : "",
+                            "Documentation Website": documentationSite ? documentationSite : "",
+                            "Mobile App Website" : mobileAppSite ? mobileAppSite : "",
+                            "Newsletter Website" : newsletterSite ? newsletterSite : "",
+                            "Careers Website" : careersSite ? careersSite : "",
+                            "Pricing Website" : pricingSite ? pricingSite : "",
                         });
                         resolve(); // Resolve the promise when the update is successful
                     } catch (err) {
