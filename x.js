@@ -1,5 +1,28 @@
 import fetch from 'node-fetch';
 
+
+const getCrunchBaseData = async (url, requestBody) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            })
+            return resolve(response);
+
+            
+        } catch (error) {
+
+            return reject(error);
+            
+        }
+    });
+}
+
 const crunchbasefetcher = async (record,table) => {
     try {
         return new Promise(async (resolve, reject) => {
@@ -76,7 +99,7 @@ const crunchbasefetcher = async (record,table) => {
                 // console.log(forMattchWebsite);
 
                 const apiKeyCrunchBase = `${process.env.CRUNCHBASE_API_KEY}`
-                const url = `https://api.apify.com/v2/acts/epctex~crunchbase-scraper/run-sync-get-dataset-items?token=${apiKeyCrunchBase}&memory=16384`;
+                const url = `https://api.apify.com/v2/acts/epctex~crunchbase-scraper/run-sync-get-dataset-items?token=${apiKeyCrunchBase}&memory=8192`;
                 if (!baseurl) {
                     baseurl = record.get('baseurl');
                 }
@@ -110,13 +133,7 @@ const crunchbasefetcher = async (record,table) => {
                         ]
                     };
                 }
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestBody)
-                })
+                const response = await getCrunchBaseData(url, requestBody);
                 if (response.ok) {
                     const data = await response.json();
                     // console.log(data);

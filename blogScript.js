@@ -3,7 +3,8 @@ const blogScript = async (record, table) => {
     try {
         return new Promise(async (resolve, reject) => {
             let checkbox = record.get('CheckBox')
-            if (checkbox) {
+            let status = record.get('Relevance Status');
+            if (checkbox && status != "Success") {
 
                 function extractCompanyDomain(url) {
                     // Remove protocol (http, https, etc.)
@@ -392,6 +393,7 @@ const blogScript = async (record, table) => {
                             "Newsletter Website" : newsletterSite ? newsletterSite : "",
                             "Careers Website" : careersSite ? careersSite : "",
                             "Pricing Website" : pricingSite ? pricingSite : "",
+                            "Relevance Status": "Success"
                         });
                         resolve(); // Resolve the promise when the update is successful
                     } catch (err) {

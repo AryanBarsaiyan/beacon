@@ -69,7 +69,8 @@ const checkDEIOnCompanyPage = async (record, table) => {
         return new Promise(async (resolve, reject) => {
             let checkbox = record.get('CheckBox')
             const careerWeb = record.get('Careers Website') ? record.get('Careers Website') : "";
-            if (checkbox && careerWeb) {
+            let status= record.get('Relevance Status') ? record.get('Relevance Status') : "";
+            if (checkbox && careerWeb && status!="Success") {
 
                 console.log('careerWeb', careerWeb);
                 const oldrelevence = record.get('Relevance') ? record.get('Relevance') : "";
@@ -122,6 +123,7 @@ const checkDEIOnCompanyPage = async (record, table) => {
                                 // updating in airtable
                                 await table.update(record.id, {
                                     "Talks About DEI": data[0].isTalkingAboutDEI? "Yes" : "No",
+                                    "Relevance Status": "Success"
                                 });
                                 resolve(); // Resolve the promise when the update is successful
                             } catch (err) {
@@ -158,6 +160,9 @@ const checkDEIOnCompanyPage = async (record, table) => {
             }
         });
     } catch (error) {
+        await table.update(record.id, {
+            "Relevance Status": "Fail"
+          });
         console.error('Error in / route:', error);
         return { success: false, message: 'Internal Server Error' };
     }

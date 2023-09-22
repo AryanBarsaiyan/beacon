@@ -4,7 +4,12 @@ const apollofetcher = async (record, table) => {
   try {
     return new Promise(async (resolve, reject) => {
       let checkbox = record.get("CheckBox");
-      if (checkbox) {
+      let Status=record.get("Apollo Status");
+      // console.log(typeof Status )
+      
+      // return resolve("Success");
+
+      if (Status!="Success") {
         const apolloApiToken = `${process.env.APOLLO_API_KEY}`;
         let targetDomain = record.get("Website");
         console.log(targetDomain);
@@ -341,6 +346,9 @@ const apollofetcher = async (record, table) => {
 
               if (!airProfileFit) {
                 let unique = airProfileFit?.split(",");
+                if(unique==null){
+                  unique=[];
+                }
                 for (let i = 0; i < funding_field_value.length; i++) {
                   unique.push(funding_field_value[i]);
                 }
@@ -1201,9 +1209,13 @@ const apollofetcher = async (record, table) => {
                     // updating in airtable
                     await table.update(record.id, {
                       "Organisation Level Signals": jobTitleString,
+                      "Apollo Status": "Success"
                     });
                     resolve(); // Resolve the promise when the update is successful
                   } catch (err) {
+                    await table.update(record.id, {
+                      "Apollo Status": "Fail"
+                    });
                     reject(err); // Reject the promise if there's an error
                   }
                 });
@@ -1224,23 +1236,35 @@ const apollofetcher = async (record, table) => {
               }
             } else {
               console.log("No data found");
+              await table.update(record.id, {
+                "Apollo Status": "Success"
+              });
               // return { success: true, message: 'No Org Id Found' };
               resolve("No Org Id Found");
             }
+          }else{
+            await table.update(record.id, {
+              "Apollo Status": "limit reached"
+            });
           }
         } else {
+          await table.update(record.id, {
+            "Apollo Status": "Website must be there"
+          });
           console.log("No data found");
           resolve("No data found");
         }
       } else {
-        console.log("No data found");
         // return { success: false, message: 'Website must be there' };
         // reject("Website must be there");
         // resolve.status(500).send('Website must be there');
-        resolve("Website must be there");
+        resolve("Success");
       }
     });
   } catch (error) {
+    await table.update(record.id, {
+      "Apollo Status": "Fail"
+    });
     console.error("Error in / route:", error);
     return { success: false, message: "Internal Server Error" };
     // resolve.status(500).send('Internal Server Error');

@@ -3,7 +3,8 @@ const gpt_analyser = async (record, table) => {
     try {
         return new Promise(async (resolve, reject) => {
             let checkbox = record.get('CheckBox')
-            if (checkbox) {
+            let status = record.get('Analyser Status')
+            if (checkbox && status != "Success") {
 
                 const website = record.get('Website') ? record.get('Website') : "";
                 const oldrelevence = record.get('Relevance') ? record.get('Relevance') : "";
@@ -83,6 +84,9 @@ const gpt_analyser = async (record, table) => {
                         // console.log('Response:', ans);
                         return ans;
                     } catch (error) {
+                        await table.update(record.id, {
+                            "Analyser Status": "limit exceeded"
+                        });
                         console.error('Error analyzing the chunk:', error);
                         return null;
                     }
@@ -190,6 +194,7 @@ const gpt_analyser = async (record, table) => {
                                     // updating in airtable 
                                     await table.update(record.id, {
                                         "Relevance": str,
+                                        "Analyser Status": "Success"
                                     });
                                     resolve(); // Resolve the promise when the update is successful
                                 } catch (err) {
@@ -209,6 +214,7 @@ const gpt_analyser = async (record, table) => {
                         }
                     })
                     .catch(error => {
+                        
                         console.error('Error:', error);
                     });
             }
@@ -221,6 +227,9 @@ const gpt_analyser = async (record, table) => {
             }
         });
     } catch (error) {
+        await table.update(record.id, {
+            "Analyser Status": "Fail"
+        });
         console.error('Error in / route:', error);
         return { success: false, message: 'Internal Server Error' };
         // resolve.status(500).send('Internal Server Error');
