@@ -85,7 +85,7 @@ const blogScript = async (record, table) => {
 
                     query.toLocaleLowerCase();
 
-                    const url = `https://api.apify.com/v2/acts/apify~google-search-scraper/run-sync-get-dataset-items?token=${apiToken}`;
+                    const url = `https://api.apify.com/v2/acts/apify~google-search-scraper/run-sync-get-dataset-items?token=${apiToken}&memory=4096`;
                     const requestBody = {
                         customDataFunction:
                             "async ({ input, $, request, response, html }) => {\n return {\n pageTitle: $('title').text(),\n };\n};",
