@@ -11,7 +11,7 @@ const crunchbasefetcher = async (record,table) => {
             console.log(Status);
             // return resolve({ success: true, message: 'Data updated successfully!' });
             // console.log(checkbox);
-            if (Status!= "Success") {
+            if (Status!== "Success") {
                 let CompanyName = record.get('Company Name');
                 let CompanyWebsite = record.get('Website');
                 console.log(CompanyName, CompanyWebsite);
@@ -48,17 +48,13 @@ const crunchbasefetcher = async (record,table) => {
                     const topResultData = await respons.json();
                     baseurl = topResultData[0] ? topResultData[0].organicResults[0] ? topResultData[0].organicResults[0].url : "" : ""
                     console.log(baseurl);
-                    if (baseurl !== "") {
+
                         await table.update(record.id, {
                             'baseurl': baseurl
                         }, function (err, record) {
                             if (err) { console.error(err); return; }
                         });
                         console.log("baseurl updated")
-                    }
-                    else {
-                        console.log("baseurl not updated")
-                    }
                 }else{
                     await table.update(record.id, {
                         "Crunchbase Status": "limit reached"
@@ -87,6 +83,7 @@ const crunchbasefetcher = async (record,table) => {
                         customMapFunction: "(object) => { return {...object} }",
                         extendOutputFunction: "($) => { return {} }",
                         maxItems: 1,
+                        mode: "organizations",
                         proxy: {
                             useApifyProxy: true
                         },
@@ -102,6 +99,7 @@ const crunchbasefetcher = async (record,table) => {
                         customMapFunction: "(object) => { return {...object} }",
                         extendOutputFunction: "($) => { return {} }",
                         maxItems: 1,
+                        mode: "organizations",
                         proxy: {
                             useApifyProxy: true
                         },
@@ -119,12 +117,18 @@ const crunchbasefetcher = async (record,table) => {
                 })
                 if (response.ok) {
                     const data = await response.json();
+                    console.log("data recieved");
+
+                    if(data.length==0){
+                        console.log("data not found")
+                        return resolve({ success: true, message: 'NO Data Found' });
+                    }
                     // console.log(data);
                     let website = data[0].cards ? data[0].cards.company_about_fields2 ? data[0].cards.company_about_fields2.website ? data[0].cards.company_about_fields2.website.value : "" : "" : ""
                     if (website !== "")
                         if (website[website.length - 1] == "/")
                             website = website.slice(0, website.length - 1)
-                    // console.log(website);
+                    console.log(website);
                     if (website === forMattchWebsite) {
                         // console.log("here")
                         const linkedin = data[0].cards ? data[0].cards.social_fields ? data[0].cards.social_fields.linkedin ? data[0].cards.social_fields.linkedin.value : "" : "" : ""
@@ -136,7 +140,7 @@ const crunchbasefetcher = async (record,table) => {
                             }, function (err, record) {
                                 if (err) { console.error(err); return; }
                             });
-                            // console.log("linkedin updated")
+                            console.log("linkedin updated")
                         }
 
                         // TWITTER  
@@ -148,7 +152,7 @@ const crunchbasefetcher = async (record,table) => {
                                 if (err) { console.error(err); return; }
                             });
 
-                            // console.log("twitter updated")
+                            console.log("twitter updated")
                         }
 
                         // facebook
@@ -159,7 +163,7 @@ const crunchbasefetcher = async (record,table) => {
                             }, function (err, record) {
                                 if (err) { console.error(err); return; }
                             });
-                            // console.log("facebook updated")
+                            console.log("facebook updated")
                         }
 
 
@@ -171,7 +175,7 @@ const crunchbasefetcher = async (record,table) => {
                             }, function (err, record) {
                                 if (err) { console.error(err); return; }
                             });
-                            // console.log("company_discription updated")
+                            console.log("company_discription updated")
                         }
 
                         // about
@@ -184,7 +188,7 @@ const crunchbasefetcher = async (record,table) => {
                             }, function (err, record) {
                                 if (err) { console.error(err); return; }
                             });
-                            // console.log("about updated")
+                            console.log("about updated")
                         }
 
                         const HR = data[0].cards ? data[0].cards.org_similarity_list ? data[0].cards.org_similarity_list[0].source_location_groups ? data[0].cards.org_similarity_list[0].source_location_groups.map(item => item.value) : "" : "" : ""
@@ -208,7 +212,7 @@ const crunchbasefetcher = async (record,table) => {
                                 if (err) { console.error(err); return; }
                             }
                             );
-                            // console.log("HR updated")
+                            console.log("HR updated")
                         }
 
                         //location
@@ -238,7 +242,7 @@ const crunchbasefetcher = async (record,table) => {
                             }, function (err, record) {
                                 if (err) { console.error(err); return; }
                             });
-                            // console.log("location updated")
+                            console.log("location updated")
                         }
 
                         // HQ country
@@ -253,7 +257,7 @@ const crunchbasefetcher = async (record,table) => {
                                 if (err) { console.error(err); return; }
                             }
                             );
-                            // console.log("HQ country updated")
+                            console.log("HQ country updated")
                         }
 
                         // Rank
@@ -314,7 +318,7 @@ const crunchbasefetcher = async (record,table) => {
                                 if (err) { console.error(err); return; }
                             }
                             );
-                            // console.log("employee count updated")
+                            console.log("employee count updated")
                         }
 
                         // categories
@@ -342,7 +346,7 @@ const crunchbasefetcher = async (record,table) => {
                                 if (err) { console.error(err); return; }
                             }
                             );
-                            // console.log("categories updated")
+                            console.log("categories updated")
                         }
 
 
@@ -448,6 +452,9 @@ const crunchbasefetcher = async (record,table) => {
                             );
                             // console.log("ipo status updated")
                         }
+                        console.log("data updated")
+
+
                         await table.update(record.id, {
                             'Crunchbase Status': "Success"
                         }, function (err, record) {
@@ -460,6 +467,11 @@ const crunchbasefetcher = async (record,table) => {
                         resolve({ success: true, message: 'Data updated successfully!' });
 
                     } else {
+                        console.log('website not matched')
+                        await table.update(record.id, {
+                            "Crunchbase Status": "Fail"
+                        }); 
+
                         // return { success: true, message: 'NO Data Found' };
                         resolve({ success: true, message: 'NO Data Found' });
                     }
@@ -473,6 +485,7 @@ const crunchbasefetcher = async (record,table) => {
                     resolve({ success: true, message: 'NO Data Found' });
                 }
             } else {
+                console.log("already done");
                 resolve({ success: true, message: 'No Checkbox' });
             }
         });

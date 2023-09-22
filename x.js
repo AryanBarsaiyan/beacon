@@ -99,7 +99,7 @@ const crunchbasefetcher = async (record,table) => {
                 // console.log(forMattchWebsite);
 
                 const apiKeyCrunchBase = `${process.env.CRUNCHBASE_API_KEY}`
-                const url = `https://api.apify.com/v2/acts/epctex~crunchbase-scraper/run-sync-get-dataset-items?token=${apiKeyCrunchBase}&memory=8192`;
+                const url = `https://api.apify.com/v2/acts/epctex~crunchbase-scraper/run-sync-get-dataset-items?token=${apiKeyCrunchBase}&memory=16384`;
                 if (!baseurl) {
                     baseurl = record.get('baseurl');
                 }
@@ -135,7 +135,11 @@ const crunchbasefetcher = async (record,table) => {
                 }
                 const response = await getCrunchBaseData(url, requestBody);
                 if (response.ok) {
+                    console.log("data recieved");
                     const data = await response.json();
+                    if(data && data.length>0){
+                        return resolve({ success: true, message: 'Data updated successfully!' });
+                    }
                     // console.log(data);
                     let website = data[0].cards ? data[0].cards.company_about_fields2 ? data[0].cards.company_about_fields2.website ? data[0].cards.company_about_fields2.website.value : "" : "" : ""
                     if (website !== "")
