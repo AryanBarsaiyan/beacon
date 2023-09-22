@@ -129,7 +129,7 @@ const crunchbasefetcher = async (record,table) => {
                         if (website[website.length - 1] == "/")
                             website = website.slice(0, website.length - 1)
                     console.log(website);
-                    if (website === forMattchWebsite) {
+                    // if (website === forMattchWebsite) {
                         // console.log("here")
                         const linkedin = data[0].cards ? data[0].cards.social_fields ? data[0].cards.social_fields.linkedin ? data[0].cards.social_fields.linkedin.value : "" : "" : ""
 
@@ -466,15 +466,15 @@ const crunchbasefetcher = async (record,table) => {
                         // resolve.send('Data updated successfully!');
                         resolve({ success: true, message: 'Data updated successfully!' });
 
-                    } else {
-                        console.log('website not matched')
-                        await table.update(record.id, {
-                            "Crunchbase Status": "Fail"
-                        }); 
+                    // } else {
+                    //     console.log('website not matched')
+                    //     await table.update(record.id, {
+                    //         "Crunchbase Status": "Fail"
+                    //     }); 
 
-                        // return { success: true, message: 'NO Data Found' };
-                        resolve({ success: true, message: 'NO Data Found' });
-                    }
+                    //     // return { success: true, message: 'NO Data Found' };
+                    //     resolve({ success: true, message: 'NO Data Found' });
+                    // }
                 }
                 else {
                     console.log("data not found")
