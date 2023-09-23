@@ -8,7 +8,7 @@ import checkDEIOnCompanyPage from './carrerPageDetails.js';
 import dotenv from 'dotenv';
 import express from 'express';
 import axios from 'axios';
-dotenv.config(); 
+dotenv.config();
 
 const app = express()
 const port = 3000
@@ -18,7 +18,7 @@ import Airtable from 'airtable';
 
 Airtable.configure({
   endpointUrl: 'https://api.airtable.com',
-  apiKey:  `${process.env.AIRTABLE_API_KEY}`
+  apiKey: `${process.env.AIRTABLE_API_KEY}`
 });
 
 var base = Airtable.base(`${process.env.AIRTABLE_BASE_ID}`);
@@ -29,21 +29,39 @@ var table = base('working');
 
 app.get('/crunchbase', async (req, res) => {
   try {
+    //thorw error if no records found
+    // throw new Error("No records found");
     const records = await table.select({
       view: "Grid view"
     }).all();
     const promises = [];
     for (let i = 0; i < records.length; i++) {
-      promises.push(await crunchbasefetcher(records[i],table));
+      try {
+        promises.push(await crunchbasefetcher(records[i], table));
+      } catch (error) {
+        console.log(error);
+        await table.update(records[i].id, {
+          "Crunchbase Log": error.message
+        });
+      }
       // break;
-    } 
+    }
     await Promise.all(promises);
     console.log(promises);
     return res.json({ success: true, message: 'Data updated successfully!' });
 
   } catch (error) {
     console.error('Error in / route:', error);
+
     res.status(500).send('Internal Server Error');
+
+     // settimout to restart the server after 10 seconds
+
+    //  setTimeout(() => {
+    //   axios.get('http://40.76.139.198:3000/crunchbase');
+    // }, 10000);
+
+
   }
 });
 
@@ -58,7 +76,7 @@ app.get('/apollo', async (req, res) => {
     const promises = [];
     for (let i = 0; i < records.length; i++) {
       console.log("Retrived", records[i].get('Company Name'))
-      promises.push(await apollofetcher(records[i],table));
+      promises.push(await apollofetcher(records[i], table));
     }
     await Promise.all(promises);
     console.log(promises)
@@ -78,8 +96,8 @@ app.get('/Relevance', async (req, res) => {
     const promises = [];
     for (let i = 0; i < records.length; i++) {
       console.log("Retrived", records[i].get('Company Name'))
-      promises.push(await blogScript(records[i],table));
-      promises.push(await checkDEIOnCompanyPage(records[i],table));
+      promises.push(await blogScript(records[i], table));
+      promises.push(await checkDEIOnCompanyPage(records[i], table));
     }
     await Promise.all(promises);
     console.log(promises)
@@ -100,7 +118,7 @@ app.get('/GptAnalyser', async (req, res) => {
     const promises = [];
     for (let i = 0; i < records.length; i++) {
       console.log("Retrived", records[i].get('Company Name'))
-      promises.push(await gpt_analyser(records[i],table));
+      promises.push(await gpt_analyser(records[i], table));
     }
     await Promise.all(promises);
     console.log(promises)
@@ -119,7 +137,7 @@ app.get('/blogDetailProvider', async (req, res) => {
     const promises = [];
     for (let i = 0; i < records.length; i++) {
       console.log("Retrived", records[i].get('Company Name'))
-      promises.push(await blogDetailProvider(records[i],table));
+      promises.push(await blogDetailProvider(records[i], table));
     }
     await Promise.all(promises);
     console.log(promises)
@@ -131,30 +149,30 @@ app.get('/blogDetailProvider', async (req, res) => {
   }
 });
 
-app.get('/Pricing', async (req, res) =>{
-    try {
+app.get('/Pricing', async (req, res) => {
+  try {
 
-       const records = await table.select({
-        view: "Grid view"
-      }).all();
+    const records = await table.select({
+      view: "Grid view"
+    }).all();
 
-      const promises = [];
-      for (let i = 0; i < records.length; i++) {
-        console.log("Retrived", records[i].get('Company Name'))
-        promises.push(await Pricing(records[i],table));
-      }
-
-      await Promise.all(promises);
-      console.log(promises);
-      return res.json({ success: true, message: 'Data updated successfully by Pricing!' });
-
-      
-    } catch (error) {
-      console.error('Error in / route:', error);
-      res.status(500).send('Internal Server Error');
-
-      
+    const promises = [];
+    for (let i = 0; i < records.length; i++) {
+      console.log("Retrived", records[i].get('Company Name'))
+      promises.push(await Pricing(records[i], table));
     }
+
+    await Promise.all(promises);
+    console.log(promises);
+    return res.json({ success: true, message: 'Data updated successfully by Pricing!' });
+
+
+  } catch (error) {
+    console.error('Error in / route:', error);
+    res.status(500).send('Internal Server Error');
+
+
+  }
 })
 
 app.get('/', async (req, res) => {
