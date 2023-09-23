@@ -4,6 +4,7 @@ const crunchbasefetcher = async (record, table) => {
     // try {
     return new Promise(async (resolve, reject) => {
         try {
+
             let log = "";
             console.log('Retrieved', record.get('Company Name'));
             log += `Retrieved ${record.get('Company Name')}\n`;

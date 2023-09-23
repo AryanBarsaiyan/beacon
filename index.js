@@ -25,30 +25,38 @@ var base = Airtable.base(`${process.env.AIRTABLE_BASE_ID}`);
 var table = base('working');
 
 
-
+const waitfn = async (record,table) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        setTimeout(async () => {
+          const x=await crunchbasefetcher(record, table);
+          resolve(x);
+        }, 300000); // wait for 5 minutes
+      }catch(e){
+        reject(e);
+      };
+    });
+}
 
 app.get('/crunchbase', async (req, res) => {
   try {
-    //thorw error if no records found
-    // throw new Error("No records found");
     const records = await table.select({
       view: "Grid view"
     }).all();
     const promises = [];
-    for (let i = 0; i < records.length; i++) {
+    for (let i = 0; i < 2; i++) {
       try {
         const x=await crunchbasefetcher(records[i], table);
         promises.push(x);
-        if(x.message==="No records found"){
-          promises.push(await crunchbasefetcher(records[i], table));
-        }
+        if(x.message==="No records found"){ // if no records found then wait for 4 minutes so that apify can fetch the data in that time
+          promises.push(await waitfn(records[i],table));
+        };
       } catch (error) {
         console.log(error);
-        await table.update(records[i].id, {
+        await table.update(records[i].id, { 
           "Crunchbase Log": error.message
         });
       }
-      // break;
     }
     await Promise.all(promises);
     console.log(promises);
@@ -56,16 +64,7 @@ app.get('/crunchbase', async (req, res) => {
 
   } catch (error) {
     console.error('Error in / route:', error);
-
     res.status(500).send('Internal Server Error');
-
-     // settimout to restart the server after 10 seconds
-
-    //  setTimeout(() => {
-    //   axios.get('http://40.76.139.198:3000/crunchbase');
-    // }, 10000);
-
-
   }
 });
 
