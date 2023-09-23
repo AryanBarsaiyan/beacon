@@ -37,7 +37,11 @@ app.get('/crunchbase', async (req, res) => {
     const promises = [];
     for (let i = 0; i < records.length; i++) {
       try {
-        promises.push(await crunchbasefetcher(records[i], table));
+        const x=await crunchbasefetcher(records[i], table);
+        promises.push(x);
+        if(x.message==="No records found"){
+          promises.push(await crunchbasefetcher(records[i], table));
+        }
       } catch (error) {
         console.log(error);
         await table.update(records[i].id, {
