@@ -125,6 +125,7 @@ app.get('/GptAnalyser', async (req, res) => {
     }
     await Promise.all(promises);
     console.log(promises)
+    return res.json({ success: true, message: 'Data updated successfully by gpt_analyser!' });
 
   } catch (error) {
     console.error('Error in / route:', error);
